@@ -7,6 +7,7 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
 
+
 router.get("/signup", signup);
 router.get("/login", login);
 router.get("/logout", logout);
