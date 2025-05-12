@@ -6,7 +6,10 @@ function App() {
   return (
     <>
     <div>
-      <h1>front is working</h1>
+      <h1 className='text'>
+        front good
+      </h1>
+
     </div>
     </>
   )
