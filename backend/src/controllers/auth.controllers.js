@@ -83,7 +83,7 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => { 
      try { 
-          res.cookie("jwt", "", {maxAGE:0})
+          res.cookies("jwt", "", {maxAGE:0})
           res.status(200).json({ message: "Logged out succssfully" });
      }catch (error) { 
           res.status(500).json({ message: "Internal Server Error" });
@@ -118,6 +118,6 @@ export const checkAuth = async(req,res) => {
      res.status(200).json(req.user);
  }catch (error) { 
      console.log("Error in checkAuth controller", error.message);
-     res.status(500).json({ message: "Internal Server Error" });
+     res.status(500).json({ message: "Internal Server Error" }); 
  }
 };
