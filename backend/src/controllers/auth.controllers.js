@@ -3,7 +3,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
-
+//-----------SIGN IN---------------//
 export const signup = async (req, res) => {
      const { fullName, email, password } = req.body;
      try    { 2
@@ -52,6 +52,7 @@ export const signup = async (req, res) => {
      }
 };
 
+//----------LOG IN----------------//
 export const login = async (req, res) => { 
      const { email, password } = req.body
     try{ 
@@ -79,8 +80,7 @@ export const login = async (req, res) => {
 
     }
 };
-
-
+//------------LOG OUT--------------//
 export const logout = (req, res) => { 
      try { 
           res.cookies("jwt", "", {maxAGE:0})
@@ -89,7 +89,7 @@ export const logout = (req, res) => {
           res.status(500).json({ message: "Internal Server Error" });
      }
 };
-
+//--------UPDATE PROFILE------------------//
 export const updateProfile = async(req,res) => { 
   try { 
      const {profilePic} = req.body;
@@ -112,7 +112,7 @@ export const updateProfile = async(req,res) => {
 
   } 
 };
-
+//----------CHECK AUTH----------------//
 export const checkAuth = async(req,res) => { 
  try{ 
      res.status(200).json(req.user);
