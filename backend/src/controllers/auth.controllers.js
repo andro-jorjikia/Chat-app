@@ -6,8 +6,7 @@ import bcrypt from "bcryptjs";
 //-----------SIGN IN---------------//
 export const signup = async (req, res) => {
      const { fullName, email, password } = req.body;
-     try    { 2
-
+     try{ 
           if(!fullName || !email || !password) {
                return res.status(400).json({ message: "All fields are required" });
           }
@@ -45,13 +44,12 @@ export const signup = async (req, res) => {
                res.status(400).json({ message: "Invalid user Data" });
           }
 
-
      } catch (error) { 
           console.log("Error in signup controller", error.message);
           res.status(500).json({ Message: "Internal Server Error" });
      }
 };
-
+ 
 //----------LOG IN----------------//
 export const login = async (req, res) => { 
      const { email, password } = req.body
@@ -77,7 +75,6 @@ export const login = async (req, res) => {
     }catch ( error ) { 
      console.log("Error in login controller", error.message);
      res.status(500).json({ message: "Internal Server Error" });
-
     }
 };
 //------------LOG OUT--------------//
