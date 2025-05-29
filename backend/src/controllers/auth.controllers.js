@@ -10,11 +10,9 @@ export const signup = async (req, res) => {
           if(!fullName || !email || !password) {
                return res.status(400).json({ message: "All fields are required" });
           }
-
           if (password.length < 6) { 
                return res.status(400).json({ message: "Password must be at least 6 characters" });
           }
-
           const user = await User.findOne({email})
           if  (user) return res.status(400).json({ message: "Email already exists" });
 
@@ -51,6 +49,7 @@ export const signup = async (req, res) => {
 };
  
 //----------LOG IN----------------//
+
 export const login = async (req, res) => { 
      const { email, password } = req.body
     try{ 
@@ -78,14 +77,17 @@ export const login = async (req, res) => {
     }
 };
 //------------LOG OUT--------------//
-export const logout = (req, res) => { 
-     try { 
-          res.cookies("jwt", "", {maxAGE:0})
-          res.status(200).json({ message: "Logged out succssfully" });
-     }catch (error) { 
-          res.status(500).json({ message: "Internal Server Error" });
+export const logout = (req, res) => {
+     try {
+         console.log("Logout request received"); 
+         res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "strict" }); 
+         console.log("Cookie cleared");
+         res.status(200).json({ message: "Logged out successfully" });
+     } catch (error) {
+         console.error("Error in logout controller:", error.message); s
+         res.status(500).json({ message: "Internal Server Error" }); 
      }
-};
+ };
 //--------UPDATE PROFILE------------------//
 export const updateProfile = async(req,res) => { 
   try { 
@@ -109,12 +111,16 @@ export const updateProfile = async(req,res) => {
 
   } 
 };
+
 //----------CHECK AUTH----------------//
-export const checkAuth = async(req,res) => { 
- try{ 
-     res.status(200).json(req.user);
- }catch (error) { 
-     console.log("Error in checkAuth controller", error.message);
-     res.status(500).json({ message: "Internal Server Error" }); 
- }
-};
+export const checkAuth = async (req, res) => { 
+     try {
+          if (!req,user) { 
+               return res.status(401).json({ message: "Unauthorized" });
+          }
+          res.status(200).json(req.user);
+     } catch (error) {
+          console.error("Error in checkAuth controller:", error.message);
+          res.status(500).json({ message: "Internal Serber Error"})
+     }
+}
