@@ -1,0 +1,22 @@
+.users-wrapper {
+  padding: 20px;
+}
+
+.user-card {
+  background: #f3f3f3;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-actions button {
+  margin-right: 10px;
+}

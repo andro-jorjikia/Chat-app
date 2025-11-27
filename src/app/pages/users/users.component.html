@@ -1,0 +1,29 @@
+<div class="users-wrapper">
+
+    <h2>Users Online</h2>
+  
+    <!-- თუ ჯერ არ არის ჩამოტვირთული სია -->
+    <div *ngIf="!(users$ | async); else list">
+      Loading users...
+    </div>
+  
+    <!-- მთავარი Users Pool სია -->
+    <ng-template #list>
+      <div class="user-card" *ngFor="let u of (users$ | async)">
+        
+        <div class="user-info">
+          <strong>{{ u.username }}</strong>
+          <span class="peer-id">PeerID: {{ u.peerId }}</span>
+        </div>
+  
+        <div class="user-actions">
+          <!-- <button (click)="connectToUser(u.peerId)">Message</button>
+          <button (click)="callAudio(u.peerId)">Audio Call</button>
+          <button (click)="callVideo(u.peerId)">Video Call</button> -->
+        </div>
+  
+      </div>
+    </ng-template>
+  
+  </div>
+  
