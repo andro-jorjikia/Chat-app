@@ -23,6 +23,7 @@ export class LoginComponent {
         // PeerJS peer init
           this.peer.initPeer();
 
+
         // როცა peerId გახსდება → რეგისტრაცია WebSocket სერვერზე
         this.peer.peerId$.subscribe(peerId => { 
             if (peerId) {
@@ -32,3 +33,6 @@ export class LoginComponent {
         });
     }
 }
+
+
+
