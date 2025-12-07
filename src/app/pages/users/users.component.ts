@@ -3,23 +3,23 @@ import { SignalingService } from '../../services/signaling.service';
 import { PeerService } from '../../services/peer.service';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule],   // <-- აქ !
+  imports: [CommonModule],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
-
 export class UsersComponent implements OnInit {
 
   users$!: Observable<any[]>;
 
   constructor(
     private signaling: SignalingService,
-    private peer: PeerService
+    private peer: PeerService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -28,18 +28,22 @@ export class UsersComponent implements OnInit {
 
   startChat(peerId: string) {
     console.log("CHAT →", peerId);
+
+    this.peer.connectToPeer(peerId)
+      .then(() => {
+        console.log("🎉  Connected — navigating to chat");
+        this.router.navigate(['/chat']);
+      })
+      .catch(err => {
+        console.error("Connection failed:", err);
+      });
   }
 
   callAudio(peerId: string) {
-    console.log("AUDIO CALL →", peerId);
-    // Since PeerService does not have callAudio and callVideo, 
-    // you need to implement the actual WebRTC logic or call a method that exists.
-    // For now, we can log a message to avoid runtime errors.
-    alert("Audio call requested to " + peerId + ". Feature not implemented.");
+    alert("Audio feature coming soon!");
   }
 
   callVideo(peerId: string) {
-    console.log("VIDEO CALL →", peerId);
-    alert("Video call requested to " + peerId + ". Feature not implemented.");
+    alert("Video feature coming soon!");
   }
 }

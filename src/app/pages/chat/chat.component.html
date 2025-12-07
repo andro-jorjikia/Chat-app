@@ -1,0 +1,19 @@
+<h2>Chat</h2>
+
+<div class="chat-box">
+  <div *ngFor="let m of messages" class="bubble" [class.me]="m.from === 'me'">
+    <div>
+      <small *ngIf="m.from === 'me'">(You)</small>
+      <small *ngIf="m.from === 'remote'">(Peer)</small>
+      <span style="float:right; font-size:10px; color:#888;">
+        {{ m.time | date:'shortTime' }}
+      </span>
+    </div>
+    <div>{{ m.text }}</div>
+  </div>
+</div>
+
+<div class="input-row">
+  <input [(ngModel)]="text" placeholder="Type message..." />
+  <button (click)="send()">Send</button>
+</div>

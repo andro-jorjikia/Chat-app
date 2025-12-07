@@ -1,0 +1,29 @@
+.chat-box {
+    height: 400px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .bubble {
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: #eee;
+    border-radius: 8px;
+    max-width: 70%;
+  }
+  
+  .bubble.me {
+    background: #cce5ff;
+    margin-left: auto;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  input {
+    flex: 1;
+    padding: 8px;
+  }
+  
