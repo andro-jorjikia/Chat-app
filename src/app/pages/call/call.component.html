@@ -1,0 +1,14 @@
+<div class="call-container">
+  <div class="call-toolbar">
+    <div>
+      <p class="eyebrow">Live</p>
+      <div class="title">Video Call</div>
+    </div>
+    <button class="end-btn" (click)="end()">End Call</button>
+  </div>
+
+  <div class="videos">
+    <video class="remote" #remoteVideo autoplay playsinline></video>
+    <video class="local" #localVideo autoplay muted playsinline></video>
+  </div>
+</div>

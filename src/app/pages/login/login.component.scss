@@ -1,38 +1,92 @@
-.login-page {
+// Full-screen center layout
+.login-wrapper {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.login-toolbar {
-  flex: 0 0 auto;
-}
-
-.login-container {
-  flex: 1 1 auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: radial-gradient(circle at top, #0f1a2a 0%, #070d14 100%);
   padding: 16px;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
 }
 
+// Card
 .login-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
+  padding: 32px;
+  text-align: center;
+  animation: fadeUp 0.6s ease forwards;
 }
 
-.full-width {
-  width: 100%;
-}
-
-.actions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.error {
-  color: #d32f2f;
+// Texts
+.title {
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-bottom: 24px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+// Input
+.input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 18px;
+  font-size: 15px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  transition: 0.25s ease;
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px #1f6feb;
+  }
+}
+
+// Button
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1f6feb, #0a4fb4);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #2b7cf8, #0f57c7);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0px);
+  }
+}
+
+// Fade-up animation
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// Mobile fix
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px;
+  }
 }

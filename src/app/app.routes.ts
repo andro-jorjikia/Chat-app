@@ -10,6 +10,10 @@ export const routes: Routes = [
   { path: 'chat', 
     loadComponent: () => import('./pages/chat/chat.component').then(m => m.ChatComponent)
    }
+  ,
+  { path: 'call',
+    loadComponent: () => import('./pages/call/call.component').then(m => m.CallComponent)
+  }
 
 ];
 

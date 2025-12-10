@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SignalingService } from '../../services/signaling.service';
 import { PeerService } from '../../services/peer.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -12,9 +12,10 @@ import { Router } from '@angular/router';
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
 
   users$!: Observable<any[]>;
+  private callSub?: Subscription;
 
   constructor(
     private signaling: SignalingService,
@@ -24,6 +25,17 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.users$ = this.signaling.users$;
+
+    // თუ ვიდეო ზარი დაიწყება (incoming/outgoing), ავტომატურად გადავიდეთ call გვერდზე
+    this.callSub = this.peer.inCall$.subscribe(inCall => {
+      if (inCall) {
+        this.router.navigate(['/call']);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.callSub?.unsubscribe();
   }
 
   startChat(peerId: string) {
@@ -31,7 +43,7 @@ export class UsersComponent implements OnInit {
 
     this.peer.connectToPeer(peerId)
       .then(() => {
-        console.log("🎉  Connected — navigating to chat");
+        console.log("Connected — navigating to chat");
         this.router.navigate(['/chat']);
       })
       .catch(err => {
@@ -40,10 +52,13 @@ export class UsersComponent implements OnInit {
   }
 
   callAudio(peerId: string) {
+    console.log("Audio call clicked:", peerId);
     alert("Audio feature coming soon!");
   }
 
   callVideo(peerId: string) {
-    alert("Video feature coming soon!");
+    console.log("Video call clicked:", peerId);
+    this.peer.startVideoCall(peerId);
+    // inCall$ subscription ავტომატურად გადაგვიყვანს /call-ზე
   }
 }

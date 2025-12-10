@@ -1,17 +1,39 @@
-<div class="users-wrapper">
-  <h2>Users Online</h2>
-
-  <ng-container *ngIf="users$ | async as users">
-    <div *ngFor="let u of users; let i = index" class="user-card">
-      <div class="user-info">
-        <strong>{{ u.username }}</strong>
-        <span>PeerID: {{ u.peerId }}</span>
+<div class="page">
+  <div class="panel">
+    <div class="panel__head">
+      <div>
+        <p class="eyebrow">Online</p>
+        <h2>Available Users</h2>
+        <small class="hint">Choose a user to start a chat or video call.</small>
       </div>
-      <div class="user-actions">
-        <button type="button" (click)="startChat(u.peerId)">💬 Chat</button>
-        <button type="button" (click)="callAudio(u.peerId)">🔊 Audio</button>
-        <button type="button" (click)="callVideo(u.peerId)">🎥 Video</button>
-      </div>
+      <div class="status-dot"></div>
     </div>
-  </ng-container>
+
+    <ng-container *ngIf="users$ | async as users; else emptyState">
+      <div class="users-grid">
+        <div *ngFor="let u of users" class="user-card">
+          <div class="avatar">
+            {{ (u.username || 'U') | slice:0:1 }}
+          </div>
+          <div class="user-info">
+            <strong>{{ u.username }}</strong>
+            <span class="muted">PeerID: {{ u.peerId }}</span>
+          </div>
+          <div class="user-actions">
+            <button class="btn ghost" (click)="startChat(u.peerId)">Chat</button>
+            <button class="btn outline" (click)="callAudio(u.peerId)">Audio</button>
+            <button class="btn primary" (click)="callVideo(u.peerId)">Video</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <div class="empty__icon">📭</div>
+        <div class="empty__text">No users online right now.</div>
+        <div class="empty__sub">Invite a friend to join and their name will appear here.</div>
+      </div>
+    </ng-template>
+  </div>
 </div>

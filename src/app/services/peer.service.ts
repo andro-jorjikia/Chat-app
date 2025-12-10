@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from "@angular/core";
-import Peer, { DataConnection } from 'peerjs';
+import Peer, { DataConnection, MediaConnection } from 'peerjs';
 import { BehaviorSubject } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
@@ -8,97 +8,104 @@ export class PeerService {
   peer!: Peer;
   peerId$ = new BehaviorSubject<string | null>(null);
 
+  // CHAT connection
   connection: DataConnection | null = null;
-
-  // auto-refresh
   onMessage$ = new BehaviorSubject<any>(null);
+
+  // VIDEO CALL
+  currentCall: MediaConnection | null = null;
+  localStream$ = new BehaviorSubject<MediaStream | null>(null);
+  remoteStream$ = new BehaviorSubject<MediaStream | null>(null);
+  inCall$ = new BehaviorSubject<boolean>(false);
 
   constructor(private zone: NgZone) {}
 
   private safeEmit(msg: any) {
-    this.zone.run(() => {
-      this.onMessage$.next(msg);
-    });
+    this.zone.run(() => this.onMessage$.next(msg));
   }
 
   initPeer() {
     this.peer = new Peer({ debug: 2 });
 
+    // My own peer ID
     this.peer.on('open', id => {
       this.zone.run(() => this.peerId$.next(id));
     });
 
-    // When someone connects to US
+    // Incoming DATA connection (chat)
     this.peer.on("connection", conn => {
-      console.log("🔥 Incoming connection from", conn.peer);
-      
-      // If we already have a connection to this peer, close the old one
+      console.log("Incoming connection from", conn.peer);
+
       if (this.connection && this.connection.peer === conn.peer) {
         console.log("Replacing existing connection to", conn.peer);
         this.connection.close();
       }
-      
+
       this.connection = conn;
 
-      conn.on("open", () => {
-        console.log("🔗 Incoming connection OPEN from", conn.peer);
-      });
+      conn.on("open", () => console.log("Incoming DataConnection open"));
 
       conn.on("data", msg => {
-        console.log("📥 RECEIVED:", msg);
+        console.log("📥 TEXT RECEIVE:", msg);
         this.safeEmit(msg);
       });
 
       conn.on("close", () => {
-        console.log("Incoming connection closed");
-        if (this.connection === conn) {
-          this.connection = null;
-        }
+        if (this.connection === conn) this.connection = null;
       });
+    });
 
-      conn.on("error", err => {
-        console.error("Incoming connection error:", err);
-      });
+    // Incoming MEDIA call (video)
+    this.peer.on("call", async (call: MediaConnection) => {
+      console.log("📞 Incoming video call", call.peer);
+      this.currentCall = call;
+
+      try {
+        const localStream = await this.getUserMedia();
+        this.localStream$.next(localStream);
+        this.inCall$.next(true);
+
+        call.answer(localStream);
+
+        call.on("stream", remote => {
+          console.log("🎥 Remote stream received");
+          this.zone.run(() => this.remoteStream$.next(remote));
+        });
+
+        call.on("close", () => this.cleanupCall());
+      } catch (err) {
+        console.error("Error answering call:", err);
+      }
     });
 
     this.peer.on("error", err => console.error("PeerJS Error:", err));
   }
 
-  // We connect to THEM
+  // Connect to peer (chat)
   connectToPeer(targetPeerId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log("Connecting to", targetPeerId);
 
-      // Check if already connected to this peer
       if (this.connection && this.connection.peer === targetPeerId && this.connection.open) {
-        console.log("Already connected to", targetPeerId);
-        this.zone.run(() => resolve());
+        console.log("Already connected");
+        resolve();
         return;
       }
 
-      const conn = this.peer.connect(targetPeerId, {
-        reliable: true
-      });
+      const conn = this.peer.connect(targetPeerId, { reliable: true });
       this.connection = conn;
 
       conn.on("open", () => {
-        console.log("🔗 Connection OPEN to", targetPeerId);
-        this.zone.run(() => resolve());
+        console.log("Connection OPEN");
+        resolve();
       });
 
-      conn.on("error", err => {
-        console.error("Connection error:", err);
-        reject(err);
-      });
-      
       conn.on("data", msg => {
-        console.log("📥 RECEIVED via connect:", msg);
+        console.log("📥 TEXT via connect:", msg);
         this.safeEmit(msg);
       });
 
-      conn.on("close", () => {
-        console.log("Connection closed");
-      });
+      conn.on("error", err => reject(err));
     });
   }
 
@@ -107,22 +114,65 @@ export class PeerService {
       console.error("No connection available");
       return;
     }
-    
-    if (this.connection.open) {
-      this.connection.send({
-        type: "text",
-        message: text,
-        time: Date.now()
+
+    this.connection.send({
+      type: "text",
+      message: text,
+      time: Date.now()
+    });
+  }
+
+  // --- VIDEO CALL LOGIC ---
+
+  private async getUserMedia(): Promise<MediaStream> {
+    return await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+  }
+
+  async startVideoCall(targetPeerId: string) {
+    console.log("Calling", targetPeerId);
+
+    try {
+      const localStream = await this.getUserMedia();
+      this.localStream$.next(localStream);
+      this.inCall$.next(true);
+
+      const call = this.peer.call(targetPeerId, localStream);
+      this.currentCall = call;
+
+      call.on("stream", remoteStream => {
+        console.log("Remote stream received");
+        this.zone.run(() => this.remoteStream$.next(remoteStream));
       });
-    } else {
-      console.warn("Connection not open yet, waiting...");
-      this.connection.on('open', () => {
-        this.connection?.send({
-          type: "text",
-          message: text,
-          time: Date.now()
-        });
-      });
+
+      call.on("close", () => this.cleanupCall());
+      call.on("error", () => this.cleanupCall());
+
+    } catch (err) {
+      console.error("startVideoCall error:", err);
+      this.cleanupCall();
     }
+  }
+
+  endCall() {
+    if (this.currentCall) {
+      this.currentCall.close();
+    }
+    this.cleanupCall();
+  }
+
+  private cleanupCall() {
+    console.log("Ending call");
+
+    // Stop local tracks
+    const stream = this.localStream$.value;
+    if (stream) stream.getTracks().forEach(t => t.stop());
+
+    this.localStream$.next(null);
+    this.remoteStream$.next(null);
+    this.inCall$.next(false);
+    this.currentCall = null;
   }
 }

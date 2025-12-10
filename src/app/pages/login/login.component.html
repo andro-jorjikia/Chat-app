@@ -1,20 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-  <div class="login-wrapper">
-    <input 
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2 class="title">Welcome</h2>
+    <p class="subtitle">Enter your username to continue</p>
+
+    <input
       type="text"
+      class="input"
       placeholder="Enter username"
       (input)="username = $any($event.target).value"
     >
-  
-    <button (click)="login()">Login</button>
+
+    <button class="btn" (click)="login()">
+      Login
+    </button>
   </div>
-      
-</body>
-</html>
+</div>
