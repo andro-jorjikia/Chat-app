@@ -1,38 +1,88 @@
-<div class="page">
-  <div class="panel">
-    <div class="panel__head">
-      <div>
-        <p class="eyebrow">Online</p>
-        <h2>Available Users</h2>
-        <small class="hint">Choose a user to start a chat or video call.</small>
+<div class="users-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">👥</div>
+      <div class="header-text">
+        <h1 class="page-title">Connect & Chat</h1>
+        <p class="page-subtitle">Find friends and start conversations</p>
       </div>
-      <div class="status-dot"></div>
     </div>
+    <div class="header-status">
+      <div class="online-indicator">
+        <div class="status-dot pulse"></div>
+        <span class="status-label">Online</span>
+      </div>
+    </div>
+  </div>
 
-    <ng-container *ngIf="users$ | async as users; else emptyState">
-      <div class="users-grid">
-        <div *ngFor="let u of users" class="user-card">
-          <div class="avatar">
-            {{ (u.username || 'U') | slice:0:1 }}
+  <!-- Users Grid -->
+  <div class="users-container">
+    <ng-container *ngIf="users$ | async as users; else loadingState">
+      <div class="users-grid" *ngIf="users.length > 0; else emptyState">
+        <div *ngFor="let user of users; let i = index; trackBy: trackByUserId"
+             class="user-card"
+             [style.animation-delay.ms]="i * 100">
+          <div class="card-header">
+            <div class="avatar">
+              <span class="avatar-text">{{ (user.username || 'U').charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="user-status">
+              <div class="status-dot online"></div>
+            </div>
           </div>
-          <div class="user-info">
-            <strong>{{ u.username }}</strong>
-            <span class="muted">PeerID: {{ u.peerId }}</span>
+
+          <div class="card-content">
+            <h3 class="user-name">{{ user.username }}</h3>
+            <!-- <p class="user-id">ID: {{ user.peerId | slice:0:8 }}...</p> -->
           </div>
-          <div class="user-actions">
-            <button class="btn ghost" (click)="startChat(u.peerId)">Chat</button>
-            <button class="btn outline" (click)="callAudio(u.peerId)">Audio</button>
-            <button class="btn primary" (click)="callVideo(u.peerId)">Video</button>
+
+          <div class="card-actions">
+            <button class="action-btn chat-btn"
+                    (click)="startChat(user.peerId)"
+                    title="Start chat">
+              <span class="btn-icon">💬</span>
+              <span class="btn-text">Chat</span>
+            </button>
+
+            <button class="action-btn audio-btn"
+                    (click)="callAudio(user.peerId)"
+                    title="Audio call">
+              <span class="btn-icon">📞</span>
+              <span class="btn-text">Audio</span>
+            </button>
+
+            <button class="action-btn video-btn"
+                    (click)="callVideo(user.peerId)"
+                    title="Video call">
+              <span class="btn-icon">📹</span>
+              <span class="btn-text">Video</span>
+            </button>
           </div>
         </div>
       </div>
     </ng-container>
 
+    <!-- Loading State -->
+    <ng-template #loadingState>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Looking for users...</p>
+      </div>
+    </ng-template>
+
+    <!-- Empty State -->
     <ng-template #emptyState>
-      <div class="empty">
-        <div class="empty__icon">📭</div>
-        <div class="empty__text">No users online right now.</div>
-        <div class="empty__sub">Invite a friend to join and their name will appear here.</div>
+      <div class="empty-state">
+        <div class="empty-icon">👀</div>
+        <h3 class="empty-title">No users online</h3>
+        <p class="empty-subtitle">Be the first to join! Share your link with friends to start connecting.</p>
+        <div class="empty-actions">
+          <button class="refresh-btn" (click)="refreshUsers()">
+            <span class="refresh-icon">↻</span>
+            Refresh
+          </button>
+        </div>
       </div>
     </ng-template>
   </div>

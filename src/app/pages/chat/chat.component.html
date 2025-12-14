@@ -1,19 +1,60 @@
-<h2>Chat</h2>
-
-<div class="chat-box">
-  <div *ngFor="let m of messages" class="bubble" [class.me]="m.from === 'me'">
-    <div>
-      <small *ngIf="m.from === 'me'">(You)</small>
-      <small *ngIf="m.from === 'remote'">(Peer)</small>
-      <span style="float:right; font-size:10px; color:#888;">
-        {{ m.time | date:'shortTime' }}
-      </span>
+<div class="chat-container">
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <div class="header-content">
+      <div class="avatar">
+        <span>💬</span>
+      </div>
+      <div class="header-info">
+        <h2 class="chat-title">Chat Room</h2>
+        <p class="chat-subtitle">Connected and chatting</p>
+      </div>
     </div>
-    <div>{{ m.text }}</div>
+    <div class="header-actions">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span class="status-text">Online</span>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="input-row">
-  <input [(ngModel)]="text" placeholder="Type message..." />
-  <button (click)="send()">Send</button>
+  <!-- Messages Container -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages-list">
+      <div *ngFor="let message of messages; let i = index; trackBy: trackByMessage"
+           class="message-wrapper"
+           [class.me]="message.from === 'me'"
+           [class.them]="message.from === 'remote'">
+        <div class="message-bubble" [class.me]="message.from === 'me'">
+          <div class="message-content">{{ message.text }}</div>
+          <div class="message-time">{{ message.time | date:'shortTime' }}</div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="messages.length === 0" class="empty-messages">
+        <div class="empty-icon">💭</div>
+        <h3 class="empty-title">Start a conversation</h3>
+        <p class="empty-subtitle">Send your first message to begin chatting</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input-container">
+    <div class="input-wrapper">
+      <input type="text"
+             [(ngModel)]="text"
+             (keyup.enter)="send()"
+             placeholder="Type a message..."
+             class="message-input"
+             #messageInput />
+      <button class="send-button"
+              (click)="send()"
+              [disabled]="!text.trim()"
+              [class.active]="text.trim()">
+        <span class="send-icon">✈️</span>
+      </button>
+    </div>
+  </div>
 </div>

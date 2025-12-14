@@ -26,7 +26,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.users$ = this.signaling.users$;
 
-    // თუ ვიდეო ზარი დაიწყება (incoming/outgoing), ავტომატურად გადავიდეთ call გვერდზე
+    // თუ ვიდეო ზარი დაიწყება (incoming/outgoing), ავტომატურად გადავა call გვერდზე
     this.callSub = this.peer.inCall$.subscribe(inCall => {
       if (inCall) {
         this.router.navigate(['/call']);
@@ -52,13 +52,22 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   callAudio(peerId: string) {
-    console.log("Audio call clicked:", peerId);
-    alert("Audio feature coming soon!");
+    this.peer.startAudioCall(peerId);
+    this.router.navigate(['/audio-call']);
   }
 
   callVideo(peerId: string) {
     console.log("Video call clicked:", peerId);
     this.peer.startVideoCall(peerId);
     // inCall$ subscription ავტომატურად გადაგვიყვანს /call-ზე
+  }
+
+  trackByUserId(index: number, user: any): string {
+    return user.peerId;
+  }
+
+  refreshUsers() {
+    // Force refresh of users observable
+    this.users$ = this.signaling.users$;
   }
 }

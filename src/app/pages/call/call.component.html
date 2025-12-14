@@ -1,14 +1,55 @@
 <div class="call-container">
-  <div class="call-toolbar">
-    <div>
-      <p class="eyebrow">Live</p>
-      <div class="title">Video Call</div>
+  <!-- Call Header -->
+  <div class="call-header">
+    <div class="header-content">
+      <div class="call-icon">📹</div>
+      <div class="header-text">
+        <h2 class="call-title">Video Call</h2>
+        <p class="call-subtitle">Connected and sharing video</p>
+      </div>
     </div>
-    <button class="end-btn" (click)="end()">End Call</button>
+    <div class="call-timer">
+      <div class="timer-display">{{ callDuration }}</div>
+    </div>
   </div>
 
-  <div class="videos">
-    <video class="remote" #remoteVideo autoplay playsinline></video>
-    <video class="local" #localVideo autoplay muted playsinline></video>
+  <!-- Video Section -->
+  <div class="videos-section">
+    <div class="videos-grid">
+      <video class="remote-video"
+             #remoteVideo
+             autoplay
+             playsinline>
+      </video>
+      <video class="local-video"
+             #localVideo
+             autoplay
+             muted
+             playsinline>
+      </video>
+    </div>
+  </div>
+
+  <!-- Call Controls -->
+  <div class="call-controls">
+    <button class="control-btn mic-btn"
+            [class.muted]="!isMicOn"
+            (click)="toggleMic()">
+      <span class="btn-icon">{{ isMicOn ? '🎤' : '🔇' }}</span>
+      <span class="btn-label">{{ isMicOn ? 'Mute' : 'Unmute' }}</span>
+    </button>
+
+    <button class="control-btn camera-btn"
+            [class.off]="!isCameraOn"
+            (click)="toggleCamera()">
+      <span class="btn-icon">{{ isCameraOn ? '📹' : '📷' }}</span>
+      <span class="btn-label">{{ isCameraOn ? 'Camera' : 'Camera' }}</span>
+    </button>
+
+    <button class="control-btn end-btn"
+            (click)="end()">
+      <span class="btn-icon">📞</span>
+      <span class="btn-label">End Call</span>
+    </button>
   </div>
 </div>

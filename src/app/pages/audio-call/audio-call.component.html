@@ -1,0 +1,44 @@
+<div class="call-container">
+    <div class="video-section">
+        <!-- Remote Video -->
+        <video #remoteVideo
+               *ngIf="showRemoteVideo"
+               autoplay
+               class="remote-video">
+        </video>
+
+        <!-- Remote Audio (fallback) -->
+        <audio #remoteAudio
+               *ngIf="!showRemoteVideo"
+               autoplay>
+        </audio>
+
+        <!-- Local Video (small preview) -->
+        <video #localVideo
+               *ngIf="showLocalVideo"
+               autoplay
+               muted
+               class="local-video">
+        </video>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn mic-btn"
+                [class.muted]="!isMicOn"
+                (click)="toggleMic()">
+            <span class="icon">{{ isMicOn ? '🎤' : '🔇' }}</span>
+        </button>
+
+        <button class="control-btn camera-btn"
+                [class.off]="!isCameraOn"
+                (click)="toggleCamera()">
+            <span class="icon">{{ isCameraOn ? '📹' : '📷' }}</span>
+        </button>
+
+        <button class="control-btn end-btn"
+                (click)="end()">
+            <span class="icon">📞</span>
+            End Call
+        </button>
+    </div>
+</div>

@@ -13,6 +13,9 @@ export const routes: Routes = [
   ,
   { path: 'call',
     loadComponent: () => import('./pages/call/call.component').then(m => m.CallComponent)
+  },
+  { path: 'audio-call',
+    loadComponent: () => import('./pages/audio-call/audio-call.component').then(m => m.AudioCallComponent)
   }
 
 ];

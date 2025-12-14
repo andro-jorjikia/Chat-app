@@ -55,20 +55,21 @@ export class PeerService {
       });
     });
 
-    // Incoming MEDIA call (video)
+    // Incoming MEDIA call (video/audio)
     this.peer.on("call", async (call: MediaConnection) => {
-      console.log("📞 Incoming video call", call.peer);
+      console.log(" Incoming call", call.peer);
       this.currentCall = call;
 
       try {
-        const localStream = await this.getUserMedia();
+        // Always get both video and audio for now - UI will control what's displayed
+        const localStream = await this.getUserMedia(true, true);
         this.localStream$.next(localStream);
         this.inCall$.next(true);
 
         call.answer(localStream);
 
         call.on("stream", remote => {
-          console.log("🎥 Remote stream received");
+          console.log(" Remote stream received");
           this.zone.run(() => this.remoteStream$.next(remote));
         });
 
@@ -124,18 +125,18 @@ export class PeerService {
 
   // --- VIDEO CALL LOGIC ---
 
-  private async getUserMedia(): Promise<MediaStream> {
+  private async getUserMedia(video: boolean = true, audio: boolean = true): Promise<MediaStream> {
     return await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
+      video: video,
+      audio: audio
     });
   }
 
-  async startVideoCall(targetPeerId: string) {
-    console.log("Calling", targetPeerId);
+  async startCall(targetPeerId: string, withVideo: boolean = false) {
+    console.log("Calling", targetPeerId, withVideo ? "with video" : "audio only");
 
     try {
-      const localStream = await this.getUserMedia();
+      const localStream = await this.getUserMedia(withVideo, true);
       this.localStream$.next(localStream);
       this.inCall$.next(true);
 
@@ -151,9 +152,17 @@ export class PeerService {
       call.on("error", () => this.cleanupCall());
 
     } catch (err) {
-      console.error("startVideoCall error:", err);
+      console.error("startCall error:", err);
       this.cleanupCall();
     }
+  }
+
+  async startVideoCall(targetPeerId: string) {
+    return this.startCall(targetPeerId, true);
+  }
+
+  async startAudioCall(targetPeerId: string) {
+    return this.startCall(targetPeerId, false);
   }
 
   endCall() {
@@ -176,3 +185,6 @@ export class PeerService {
     this.currentCall = null;
   }
 }
+
+
+

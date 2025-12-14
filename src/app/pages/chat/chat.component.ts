@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { PeerService } from '../../services/peer.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,11 +11,15 @@ import { Subscription } from 'rxjs';
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss']
 })
-export class ChatComponent implements OnInit, OnDestroy {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   messages: any[] = [];
   text = "";
   private subscription?: Subscription;
+
+  private shouldScrollToBottom = false;
+
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   constructor(
     private peer: PeerService,
@@ -31,16 +35,27 @@ export class ChatComponent implements OnInit, OnDestroy {
         text: msg.message,
         time: msg.time
       }];
-      
-      // Force change detection
+
+      this.shouldScrollToBottom = true;
       this.cdr.detectChanges();
     });
+  }
+
+  ngAfterViewChecked() {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+      this.shouldScrollToBottom = false;
+    }
   }
 
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  trackByMessage(index: number, message: any): any {
+    return message.time + message.from + message.text;
   }
 
   send() {
@@ -55,6 +70,18 @@ export class ChatComponent implements OnInit, OnDestroy {
     }];
 
     this.text = "";
+    this.shouldScrollToBottom = true;
     this.cdr.detectChanges();
+  }
+
+  private scrollToBottom(): void {
+    try {
+      if (this.messagesContainer) {
+        const element = this.messagesContainer.nativeElement;
+        element.scrollTop = element.scrollHeight;
+      }
+    } catch (err) {
+      console.error('Error scrolling to bottom:', err);
+    }
   }
 }
