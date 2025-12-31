@@ -27,7 +27,7 @@ export class CallComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.callStartTime = new Date();
     this.startCallTimer();
-
+ 
     this.peer.localStream$.subscribe(stream => {
       if (stream && this.localVideo) {
         this.localVideo.nativeElement.srcObject = stream;

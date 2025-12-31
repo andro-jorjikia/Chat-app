@@ -1,7 +1,8 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PeerService } from '../../services/peer.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-audio-call',
@@ -10,80 +11,61 @@ import { Router } from '@angular/router';
   templateUrl: './audio-call.component.html',
   styleUrls: ['./audio-call.component.scss']
 })
+export class AudioCallComponent implements OnInit, OnDestroy {
 
-export class AudioCallComponent implements OnInit{
+  @ViewChild('remoteAudio', { static: true })
+  remoteAudio!: ElementRef<HTMLAudioElement>;
 
-    @ViewChild('remoteAudio', { static: true })
-    remoteAudio!: ElementRef<HTMLAudioElement>;
+  isMicOn = true;
+  private subs: Subscription[] = [];
 
-    @ViewChild('remoteVideo', { static: false })
-    remoteVideo!: ElementRef<HTMLVideoElement>;
+  constructor(
+    private peer: PeerService,
+    private router: Router
+  ) {}
 
-    @ViewChild('localVideo', { static: false })
-    localVideo!: ElementRef<HTMLVideoElement>;
+  ngOnInit(): void {
+    this.subs.push(
+      this.peer.remoteStream$.subscribe(stream => {
+        if (!stream) return;
 
-    // UI state
-    isCameraOn = false;
-    isMicOn = true;
-    showLocalVideo = false;
-    showRemoteVideo = false;
-
-    constructor(
-        public peer: PeerService,
-        private router: Router
-    ) {} 
-
-    ngOnInit(): void {
-        // Handle remote stream
-        this.peer.remoteStream$.subscribe(stream => {
-            if (stream) {
-                const hasVideo = stream.getVideoTracks().length > 0;
-                this.showRemoteVideo = hasVideo;
-
-                if (hasVideo && this.remoteVideo?.nativeElement) {
-                    this.remoteVideo.nativeElement.srcObject = stream;
-                } else if (this.remoteAudio?.nativeElement) {
-                    this.remoteAudio.nativeElement.srcObject = stream;
-                    this.remoteAudio.nativeElement.play();
-                }
-            }
+        stream.getAudioTracks().forEach(track => {
+          track.enabled = true;
         });
 
-        // Handle local stream
-        this.peer.localStream$.subscribe(stream => {
-            if (stream && this.localVideo?.nativeElement) {
-                this.localVideo.nativeElement.srcObject = stream;
-            }
+        const audioEl = this.remoteAudio.nativeElement;
+
+        audioEl.srcObject = stream;
+
+        audioEl.muted = false;
+        audioEl.volume = 1;
+
+        audioEl.play().catch(() => {
+          console.warn('Autoplay blocked – user interaction required');
         });
-    }
+      })
+    );
+  }
 
-    toggleCamera() {
-        this.isCameraOn = !this.isCameraOn;
-        this.showLocalVideo = this.isCameraOn;
+  toggleMic(): void {
+    this.isMicOn = !this.isMicOn;
 
-        const localStream = this.peer.localStream$.value;
-        if (localStream) {
-            const videoTracks = localStream.getVideoTracks();
-            videoTracks.forEach(track => {
-                track.enabled = this.isCameraOn;
-            });
-        }
-    }
+    const stream = this.peer.localStream$.value;
+    if (!stream) return;
 
-    toggleMic() {
-        this.isMicOn = !this.isMicOn;
+    // ✅ This part was already correct
+    stream.getAudioTracks().forEach(track => {
+      track.enabled = this.isMicOn;
+    });
+  }
 
-        const localStream = this.peer.localStream$.value;
-        if (localStream) {
-            const audioTracks = localStream.getAudioTracks();
-            audioTracks.forEach(track => {
-                track.enabled = this.isMicOn;
-            });
-        }
-    }
+  endCall(): void {
+    this.peer.endCall();
+    this.router.navigate(['/users']);
+  }
 
-    end() {
-        this.peer.endCall();
-        this.router.navigate(['/users']);
-    }
+  ngOnDestroy(): void {
+    // ✅ cleanup subscriptions
+    this.subs.forEach(s => s.unsubscribe());
+  }
 }
