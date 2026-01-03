@@ -1,55 +1,82 @@
 <div class="call-container">
-  <!-- Call Header -->
-  <div class="call-header">
-    <div class="header-content">
-      <div class="call-icon">📹</div>
-      <div class="header-text">
-        <h2 class="call-title">Video Call</h2>
-        <p class="call-subtitle">Connected and sharing video</p>
+  <!-- Background for remote video -->
+  <div class="video-background">
+    <video class="remote-video"
+           #remoteVideo
+           autoplay
+           playsinline
+           [class.hidden]="!isConnected">
+    </video>
+    <div class="video-placeholder" *ngIf="!isConnected">
+      <div class="placeholder-avatar">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="50" fill="rgba(255,255,255,0.1)"/>
+          <path d="M50 30C58.2843 30 65 36.7157 65 45C65 53.2843 58.2843 60 50 60C41.7157 60 35 53.2843 35 45C35 36.7157 41.7157 30 50 30Z" fill="white" opacity="0.6"/>
+          <path d="M30 75C30 65 38 60 50 60C62 60 70 65 70 75V80H30V75Z" fill="white" opacity="0.6"/>
+        </svg>
       </div>
     </div>
-    <div class="call-timer">
-      <div class="timer-display">{{ callDuration }}</div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="call-status">
+      <span class="status-dot" [class.connected]="isConnected"></span>
+      <span class="status-text">{{ isConnected ? 'Connected' : 'Connecting...' }}</span>
+    </div>
+    <div class="call-timer" *ngIf="isConnected">{{ callDuration }}</div>
+  </div>
+
+  <!-- Local video (small, corner) -->
+  <div class="local-video-container">
+    <video class="local-video"
+           #localVideo
+           autoplay
+           muted
+           playsinline
+           [class.hidden]="!isCameraOn">
+    </video>
+    <div class="local-video-placeholder" *ngIf="!isCameraOn">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+      </svg>
     </div>
   </div>
 
-  <!-- Video Section -->
-  <div class="videos-section">
-    <div class="videos-grid">
-      <video class="remote-video"
-             #remoteVideo
-             autoplay
-             playsinline>
-      </video>
-      <video class="local-video"
-             #localVideo
-             autoplay
-             muted
-             playsinline>
-      </video>
-    </div>
-  </div>
-
-  <!-- Call Controls -->
-  <div class="call-controls">
-    <button class="control-btn mic-btn"
-            [class.muted]="!isMicOn"
-            (click)="toggleMic()">
-      <span class="btn-icon">{{ isMicOn ? '🎤' : '🔇' }}</span>
-      <span class="btn-label">{{ isMicOn ? 'Mute' : 'Unmute' }}</span>
+  <!-- Bottom controls -->
+  <div class="bottom-controls">
+    <button class="control-btn mute-btn" 
+            [class.active]="isMicOn"
+            (click)="toggleMic()"
+            aria-label="Toggle microphone">
+      <svg *ngIf="isMicOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+      <svg *ngIf="!isMicOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+      </svg>
     </button>
 
-    <button class="control-btn camera-btn"
-            [class.off]="!isCameraOn"
-            (click)="toggleCamera()">
-      <span class="btn-icon">{{ isCameraOn ? '📹' : '📷' }}</span>
-      <span class="btn-label">{{ isCameraOn ? 'Camera' : 'Camera' }}</span>
+    <button class="control-btn camera-btn" 
+            [class.active]="isCameraOn"
+            (click)="toggleCamera()"
+            aria-label="Toggle camera">
+      <svg *ngIf="isCameraOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+      </svg>
+      <svg *ngIf="!isCameraOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 6.5l-3.5-3.5L16 4.5 12 8.5 8 4.5 6.5 3 3 6.5 7 10.5v3L3 17.5 6.5 21 8 19.5l4-4 4 4 1.5 1.5L21 17.5 17 14v-3l4-4.5zM13 13.5l-2-2v-3l2-2 2 2v3l-2 2z"/>
+      </svg>
     </button>
 
-    <button class="control-btn end-btn"
-            (click)="end()">
-      <span class="btn-icon">📞</span>
-      <span class="btn-label">End Call</span>
+    <button class="control-btn end-btn" 
+            (click)="end()"
+            aria-label="End call">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
     </button>
   </div>
 </div>

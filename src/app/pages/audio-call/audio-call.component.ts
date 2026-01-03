@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PeerService } from '../../services/peer.service';
 import { Router } from '@angular/router';
@@ -11,61 +11,132 @@ import { Subscription } from 'rxjs';
   templateUrl: './audio-call.component.html',
   styleUrls: ['./audio-call.component.scss']
 })
-export class AudioCallComponent implements OnInit, OnDestroy {
+export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild("remoteAudio") remoteAudio!: ElementRef<HTMLAudioElement>;
 
-  @ViewChild('remoteAudio', { static: true })
-  remoteAudio!: ElementRef<HTMLAudioElement>;
-
+  // UI State
   isMicOn = true;
-  private subs: Subscription[] = [];
+  callDuration = '00:00';
+  isConnected = false;
+
+  private subscriptions = new Subscription();
+  private callStartTime?: Date;
+  private timerInterval?: number;
 
   constructor(
-    private peer: PeerService,
+    public peer: PeerService,
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.subs.push(
+  ngOnInit() {
+    // Subscribe to call state
+    this.subscriptions.add(
+      this.peer.inCall$.subscribe(inCall => {
+        this.isConnected = inCall;
+        if (inCall && !this.callStartTime) {
+          this.callStartTime = new Date();
+          this.startCallTimer();
+        } else if (!inCall) {
+          this.stopCallTimer();
+        }
+      })
+    );
+
+    // Subscribe to remote stream
+    this.subscriptions.add(
       this.peer.remoteStream$.subscribe(stream => {
-        if (!stream) return;
+        if (stream) {
+          // Use setTimeout to ensure ViewChild is ready
+          setTimeout(() => {
+            if (this.remoteAudio?.nativeElement) {
+              const audio = this.remoteAudio.nativeElement;
+              audio.srcObject = stream;
+              audio.play().catch(err => {
+                console.error('Failed to play remote audio:', err);
+              });
+            }
+          }, 100);
+        } else {
+          // Clear stream when disconnected
+          if (this.remoteAudio?.nativeElement) {
+            this.remoteAudio.nativeElement.srcObject = null;
+          }
+        }
+      })
+    );
 
-        stream.getAudioTracks().forEach(track => {
-          track.enabled = true;
-        });
-
-        const audioEl = this.remoteAudio.nativeElement;
-
-        audioEl.srcObject = stream;
-
-        audioEl.muted = false;
-        audioEl.volume = 1;
-
-        audioEl.play().catch(() => {
-          console.warn('Autoplay blocked – user interaction required');
-        });
+    // Subscribe to errors
+    this.subscriptions.add(
+      this.peer.error$.subscribe(error => {
+        if (error) {
+          console.error('PeerService error:', error);
+          // You can add toast notification here if needed
+        }
       })
     );
   }
 
-  toggleMic(): void {
-    this.isMicOn = !this.isMicOn;
-
-    const stream = this.peer.localStream$.value;
-    if (!stream) return;
-
-    // ✅ This part was already correct
-    stream.getAudioTracks().forEach(track => {
-      track.enabled = this.isMicOn;
-    });
+  ngAfterViewInit() {
+    // Ensure remote audio element is set up
+    if (this.remoteAudio?.nativeElement) {
+      const audio = this.remoteAudio.nativeElement;
+      audio.onloadedmetadata = () => {
+        audio.play().catch(err => {
+          console.error('Failed to play audio:', err);
+        });
+      };
+    }
   }
 
-  endCall(): void {
+  ngOnDestroy() {
+    this.stopCallTimer();
+    this.subscriptions.unsubscribe();
+  }
+
+  toggleMute() {
+    this.isMicOn = this.peer.toggleMicrophone();
+  }
+
+  enableVideo() {
+    if (!this.peer.currentCall) {
+      console.error('No active call to upgrade');
+      return;
+    }
+
+    this.peer.upgradeToVideo()
+      .then(() => {
+        this.router.navigate(["/call"]);
+      })
+      .catch(error => {
+        console.error('Failed to upgrade to video:', error);
+        // You can show error message to user here
+      });
+  }
+
+  end() {
     this.peer.endCall();
-    this.router.navigate(['/users']);
+    this.router.navigate(["/users"]);
   }
 
-  ngOnDestroy(): void {
-    // ✅ cleanup subscriptions
-    this.subs.forEach(s => s.unsubscribe());
+  private startCallTimer(): void {
+    this.stopCallTimer(); // Clear any existing timer
+    this.timerInterval = window.setInterval(() => {
+      if (this.callStartTime) {
+        const now = new Date();
+        const diff = now.getTime() - this.callStartTime.getTime();
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        this.callDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }, 1000);
+  }
+
+  private stopCallTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
+    }
+    this.callDuration = '00:00';
+    this.callStartTime = undefined;
   }
 }

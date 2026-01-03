@@ -17,20 +17,24 @@ export class LoginComponent {
     private signaling: SignalingService,
     private router: Router
   ) {}
-    login() {
-          if (!this.username.trim()) return;
+    async login() {
+      if (!this.username.trim()) return;
 
+      try {
         // PeerJS peer init
-          this.peer.initPeer();
-
+        await this.peer.initPeer();
 
         // როცა peerId გახსდება → რეგისტრაცია WebSocket სერვერზე
         this.peer.peerId$.subscribe(peerId => { 
-            if (peerId) {
-                this.signaling.connect(this.username, peerId);
-                this.router.navigate(['/users']);
-            } 
+          if (peerId) {
+            this.signaling.connect(this.username, peerId);
+            this.router.navigate(['/users']);
+          } 
         });
+      } catch (error) {
+        console.error('Failed to initialize peer:', error);
+        // You can show error message to user here
+      }
     }
 }
 

@@ -1,44 +1,67 @@
-<div class="call-container">
-    <div class="video-section">
-        <!-- Remote Video -->
-        <video #remoteVideo
-               *ngIf="showRemoteVideo"
-               autoplay
-               class="remote-video">
-        </video>
-
-        <!-- Remote Audio (fallback) -->
-        <audio #remoteAudio
-               *ngIf="!showRemoteVideo"
-               autoplay>
-        </audio>
-
-        <!-- Local Video (small preview) -->
-        <video #localVideo
-               *ngIf="showLocalVideo"
-               autoplay
-               muted
-               class="local-video">
-        </video>
+<div class="audio-call-container">
+  <!-- Background gradient -->
+  <div class="background-gradient"></div>
+  
+  <!-- Top bar with timer -->
+  <div class="top-bar">
+    <div class="call-status">
+      <span class="status-dot" [class.connected]="isConnected"></span>
+      <span class="status-text">{{ isConnected ? 'Connected' : 'Calling...' }}</span>
     </div>
+    <div class="call-timer" *ngIf="isConnected">{{ callDuration }}</div>
+  </div>
 
-    <div class="controls">
-        <button class="control-btn mic-btn"
-                [class.muted]="!isMicOn"
-                (click)="toggleMic()">
-            <span class="icon">{{ isMicOn ? '🎤' : '🔇' }}</span>
-        </button>
-
-        <button class="control-btn camera-btn"
-                [class.off]="!isCameraOn"
-                (click)="toggleCamera()">
-            <span class="icon">{{ isCameraOn ? '📹' : '📷' }}</span>
-        </button>
-
-        <button class="control-btn end-btn"
-                (click)="end()">
-            <span class="icon">📞</span>
-            End Call
-        </button>
+  <!-- Center content -->
+  <div class="center-content">
+    <div class="avatar-container">
+      <div class="avatar-circle">
+        <div class="avatar-inner">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="50" fill="currentColor"/>
+            <path d="M50 30C58.2843 30 65 36.7157 65 45C65 53.2843 58.2843 60 50 60C41.7157 60 35 53.2843 35 45C35 36.7157 41.7157 30 50 30Z" fill="white"/>
+            <path d="M30 75C30 65 38 60 50 60C62 60 70 65 70 75V80H30V75Z" fill="white"/>
+          </svg>
+        </div>
+        <div class="pulse-ring" *ngIf="!isConnected"></div>
+      </div>
+      <h2 class="username">Audio Call</h2>
     </div>
+  </div>
+
+  <!-- Audio element -->
+  <audio #remoteAudio autoplay playsinline></audio>
+
+  <!-- Bottom controls -->
+  <div class="bottom-controls">
+    <button class="control-btn mute-btn" 
+            [class.active]="isMicOn"
+            (click)="toggleMute()"
+            [attr.aria-label]="isMicOn ? 'Mute' : 'Unmute'">
+      <svg *ngIf="isMicOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+      <svg *ngIf="!isMicOn" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+      </svg>
+    </button>
+
+    <button class="control-btn video-btn" 
+            (click)="enableVideo()"
+            aria-label="Switch to video">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+      </svg>
+    </button>
+
+    <button class="control-btn end-btn" 
+            (click)="end()"
+            aria-label="End call">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
 </div>
+  

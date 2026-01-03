@@ -15,7 +15,7 @@ export class SignalingService {
   iceCandidate$ = new BehaviorSubject<any>(null);
 
   connect(username: string, peerId: string) {
-    this.ws = new WebSocket("wss://angular-chat-server-1.onrender.com");
+    this.ws = new WebSocket("https://angular-chat-server-1-itg3.onrender.com");
 
     this.ws.onopen = () => {
       console.log("Connected to signaling server");

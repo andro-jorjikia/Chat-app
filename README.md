@@ -1,59 +1,57 @@
-# ChatApp
+# 💬 Chat App - Real-time Video/Audio Calls
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
+Modern real-time chat application with video and audio calling capabilities built with Angular and WebRTC.
 
-## Development server
+## ✨ Features
 
-To start a local development server, run:
+- 🎤 **Audio Calls** - High-quality voice calls
+- 📹 **Video Calls** - HD video calls with camera controls
+- 💬 **Real-time Chat** - Instant messaging
+- 👥 **User Discovery** - Find and connect with online users
+- 🎨 **Modern UI** - Instagram-style interface
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🚀 Quick Start
 
 ```bash
-ng generate component component-name
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Open http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 📚 Documentation
 
-```bash
-ng generate --help
-```
+For detailed documentation, see [DOCUMENTATION.md](./DOCUMENTATION.md)
 
-## Building
+## 🛠 Tech Stack
 
-To build the project run:
+- **Angular 21** - Frontend framework
+- **PeerJS** - WebRTC wrapper
+- **WebSocket** - Real-time signaling
+- **TypeScript** - Type-safe code
+- **RxJS** - Reactive programming
 
-```bash
-ng build
-```
+## 📖 How It Works
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+1. **Login** - Enter username, get peer ID
+2. **Discover** - See all online users
+3. **Connect** - Start chat, audio, or video call
+4. **Communicate** - Direct peer-to-peer connection
 
-## Running unit tests
+## 🎯 Key Concepts
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+- **PeerJS** handles WebRTC automatically
+- **WebSocket** server for user discovery
+- **Direct P2P** connection for media streams
+- **No server** needed for actual calls (only signaling)
 
-```bash
-ng test
-```
+## 📝 License
 
-## Running end-to-end tests
+MIT
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+**For detailed documentation, see [DOCUMENTATION.md](./DOCUMENTATION.md)**
