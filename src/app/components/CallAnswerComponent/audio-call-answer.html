@@ -1,0 +1,24 @@
+<div class="call-answer-overlay" *ngIf="pendingCall">
+  <div style="color:red;font-size:12px;">pendingCall: {{ pendingCall | json }}</div>
+  <div class="call-answer-center">
+    <div class="call-card">
+      <div class="avatar-circle">
+        <div class="avatar-inner"></div>
+      </div>
+
+      <div class="call-info">
+        <div class="caller">Incoming {{ pendingKind || 'audio' }} call</div>
+        <div class="caller-meta" *ngIf="pendingCall?.metadata?.from">From: {{ pendingCall.metadata.from }}</div>
+        <div class="caller-meta" *ngIf="!pendingCall?.metadata?.from">From: {{ pendingCall?.peer || 'Unknown' }}</div>
+      </div>
+
+      <div class="call-actions">
+        <button #acceptBtn class="btn accept" (click)="accept()">Accept</button>
+        <button class="btn reject" (click)="reject()">Reject</button>
+      </div>
+
+      <!-- remote audio will autoplay when connected -->
+      <audio #remoteAudio autoplay playsinline></audio>
+    </div>
+  </div>
+</div>

@@ -12,6 +12,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./audio-call.component.scss']
 })
 export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
+  callDeclined = false;
+  private callDeclinedSub?: Subscription;
   @ViewChild("remoteAudio") remoteAudio!: ElementRef<HTMLAudioElement>;
 
   // UI State
@@ -29,6 +31,17 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Subscribe to call declined
+    this.callDeclinedSub = this.peer.callDeclined$.subscribe(declined => {
+      if (declined) {
+        this.callDeclined = true;
+        setTimeout(() => {
+          this.callDeclined = false;
+          this.peer.callDeclined$.next(false);
+          this.router.navigate(["/users"]);
+        }, 1800);
+      }
+    });
     // Subscribe to call state
     this.subscriptions.add(
       this.peer.inCall$.subscribe(inCall => {
@@ -89,6 +102,7 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+  this.callDeclinedSub?.unsubscribe();
     this.stopCallTimer();
     this.subscriptions.unsubscribe();
   }

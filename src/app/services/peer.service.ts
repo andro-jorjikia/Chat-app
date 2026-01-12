@@ -1,4 +1,5 @@
 import { Injectable, NgZone } from "@angular/core";
+import { Router } from '@angular/router';
 import Peer, { DataConnection, MediaConnection } from "peerjs";
 import { BehaviorSubject, Observable } from "rxjs";
 
@@ -17,7 +18,7 @@ export class PeerService {
   peerId$ = new BehaviorSubject<string | null>(null);
   error$ = new BehaviorSubject<string | null>(null);
 
-  // ===== CHAT (არ ვეხებით) =====
+  // ===== CHAT  =====
   connection: DataConnection | null = null;
   onMessage$ = new BehaviorSubject<any>(null);
 
@@ -25,9 +26,14 @@ export class PeerService {
   private _currentCall: MediaConnection | null = null;
   callKind$ = new BehaviorSubject<CallKind | null>(null);
 
+  // Pending incoming call (UI should show accept/reject)
+  pendingCall$ = new BehaviorSubject<MediaConnection | null>(null);
+  pendingCallKind$ = new BehaviorSubject<CallKind | null>(null);
+
   localStream$ = new BehaviorSubject<MediaStream | null>(null);
   remoteStream$ = new BehaviorSubject<MediaStream | null>(null);
   inCall$ = new BehaviorSubject<boolean>(false);
+  callDeclined$ = new BehaviorSubject<boolean>(false);
 
   get peer(): Peer | undefined {
     return this._peer;
@@ -41,7 +47,7 @@ export class PeerService {
     return this._currentCall;
   }
 
-  constructor(private zone: NgZone) {}
+  constructor(private zone: NgZone, private router: Router) {}
 
   private emitMessage(msg: any) {
     this.zone.run(() => this.onMessage$.next(msg));
@@ -112,47 +118,24 @@ export class PeerService {
         });
 
         // -------- INCOMING CALL --------
-        this._peer.on("call", async (call) => {
-          // Default to "audio" if metadata is missing (safer default)
+        // Do NOT auto-answer incoming calls. Mark them as pending so the UI
+        // can prompt the user to Accept or Reject.
+        this._peer.on("call", (call) => {
           const kind: CallKind = call.metadata?.kind ?? "audio";
-          
-          console.log("[PeerService] Incoming call, kind:", kind, "metadata:", call.metadata);
-          
-          // If already in a call, reject the new one
-          if (this._currentCall) {
+
+          console.log("[PeerService] Incoming call (pending), kind:", kind, "metadata:", call.metadata);
+
+          // If already in a call or there is already a pending call, reject
+          if (this._currentCall || this.pendingCall$.value) {
             call.close();
             return;
           }
 
-          this._currentCall = call;
-          this.callKind$.next(kind);
-          this.inCall$.next(true);
-
-          try {
-            // Request media based on call kind
-            const needsVideo = kind === "video";
-            const stream = await this.getUserMedia(needsVideo);
-            this.localStream$.next(stream);
-
-            call.answer(stream);
-
-            call.on("stream", (remote) => {
-              this.zone.run(() => this.remoteStream$.next(remote));
-            });
-
-            call.on("close", () => {
-              this.cleanup();
-            });
-
-            call.on("error", (err) => {
-              this.emitError(`Call error: ${err.message || err.type}`);
-              this.cleanup();
-            });
-          } catch (error: any) {
-            this.emitError(`Failed to get user media: ${error.message || "Unknown error"}`);
-            call.close();
-            this.cleanup();
-          }
+          // Store as pending - run inside Angular zone so UI updates
+          this.zone.run(() => {
+            this.pendingCall$.next(call);
+            this.pendingCallKind$.next(kind);
+          });
         });
       } catch (error: any) {
         const errorMsg = `Failed to initialize peer: ${error.message || "Unknown error"}`;
@@ -282,8 +265,12 @@ export class PeerService {
         this.zone.run(() => this.remoteStream$.next(remote));
       });
 
+      // Handle call close (callee rejected or ended)
       call.on("close", () => {
+        console.log('[PeerService] Outgoing call closed (callee may have rejected or ended)');
+        this.callDeclined$.next(true);
         this.cleanup();
+        this.router.navigate(['/users']);
       });
 
       call.on("error", (err) => {
@@ -295,6 +282,68 @@ export class PeerService {
       this.cleanup();
       throw error;
     }
+  }
+
+  async acceptCall(): Promise<void> {
+    const call = this.pendingCall$.value;
+    const kind = this.pendingCallKind$.value ?? "audio";
+    if (!call) {
+      throw new Error("No pending call to accept");
+    }
+
+    try {
+      const needsVideo = kind === "video";
+      const stream = await this.getUserMedia(needsVideo);
+      this.localStream$.next(stream);
+
+      // clear pending state before answering
+      this.pendingCall$.next(null);
+      this.pendingCallKind$.next(null);
+
+      // answer and become current call
+      call.answer(stream);
+      this._currentCall = call;
+      this.callKind$.next(kind);
+      this.inCall$.next(true);
+
+      call.on("stream", (remote) => {
+        this.zone.run(() => this.remoteStream$.next(remote));
+      });
+
+      call.on("close", () => {
+        this.cleanup();
+      });
+
+      call.on("error", (err) => {
+        this.emitError(`Call error: ${err.message || err.type}`);
+        this.cleanup();
+      });
+    } catch (error: any) {
+      this.emitError(`Failed to accept call: ${error.message || "Unknown error"}`);
+      try {
+        call.close();
+      } catch (_e) {
+        // ignore
+      }
+      this.pendingCall$.next(null);
+      this.pendingCallKind$.next(null);
+      throw error;
+    }
+  }
+
+  /**
+   * Reject a pending incoming call.
+   */
+  rejectCall(): void {
+    const call = this.pendingCall$.value;
+    if (!call) return;
+    try {
+      call.close();
+    } catch (_e) {
+      // ignore
+    }
+    this.pendingCall$.next(null);
+    this.pendingCallKind$.next(null);
   }
 
   async upgradeToVideo(): Promise<void> {
@@ -452,6 +501,7 @@ export class PeerService {
   }
 
   private cleanup(): void {
+    this.callDeclined$.next(false);
     // Stop all local media tracks
     const localStream = this.localStream$.value;
     if (localStream) {
