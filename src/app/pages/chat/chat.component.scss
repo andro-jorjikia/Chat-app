@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #667eea;
+  background: var(--page-bg);
   padding: var(--space-4);
   position: relative;
   overflow: hidden;
@@ -13,11 +13,10 @@
   height: calc(100vh - 2 * var(--space-4));
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
+  background: var(--surface);
   border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-2xl);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--surface-border);
   overflow: hidden;
   animation: fadeIn var(--transition-normal);
   position: relative;
@@ -27,9 +26,8 @@
 // Chat Header
 .chat-header {
   padding: var(--space-5) var(--space-6);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--color-gray-200);
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,15 +39,37 @@
   gap: var(--space-4);
 }
 
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.back-btn:hover {
+  background: var(--color-gray-200);
+  color: var(--color-gray-900);
+}
+
 .avatar {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background: #667eea;
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: var(--font-size-lg);
+  color: var(--color-white);
+  font-weight: var(--font-weight-semibold);
 }
 
 .header-info {
@@ -86,8 +106,21 @@
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
-  background: var(--color-success);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  background: var(--color-gray-400);
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.2);
+
+  &.connected {
+    background: var(--color-success);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  }
+}
+
+.status-text.connecting {
+  color: var(--color-gray-500);
+}
+
+.status-text.connected {
+  color: var(--color-success);
 }
 
 .status-text {
@@ -169,10 +202,10 @@
   box-shadow: var(--shadow-sm);
 
   &.me {
-    background: #667eea;
+    background: var(--color-primary);
     color: var(--color-white);
     border: 1px solid transparent;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
     .message-time {
       color: rgba(255, 255, 255, 0.9);
@@ -218,9 +251,8 @@
 // Message Input
 .message-input-container {
   padding: var(--space-4) var(--space-6);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--color-gray-200);
+  background: var(--surface);
+  border-top: 1px solid var(--surface-border);
 }
 
 .input-wrapper {
@@ -235,7 +267,7 @@
 
   &:focus-within {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
 }
 
@@ -262,12 +294,12 @@
   height: 40px;
   border-radius: var(--radius-full);
   border: none;
-  background: #667eea;
+  background: var(--color-primary);
   cursor: pointer;
   transition: var(--transition-fast);
   flex-shrink: 0;
   color: var(--color-white);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
   .send-icon {
     font-size: var(--font-size-sm);
@@ -275,9 +307,9 @@
   }
 
   &:hover:not(:disabled) {
-    background: #5568d3;
-    transform: scale(1.05);
-    box-shadow: var(--shadow-lg);
+    background: var(--color-primary-dark);
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 
     .send-icon {
       transform: translateX(2px);
@@ -290,7 +322,7 @@
   }
 
   &.active {
-    background: #667eea;
+    background: var(--color-primary);
   }
 }
 

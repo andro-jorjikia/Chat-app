@@ -15,6 +15,14 @@
     </div>
   </div>
 
+  <!-- Connection error -->
+  @if (connectionError) {
+    <div class="connection-error">
+      {{ connectionError }}
+      <button type="button" class="dismiss-btn" (click)="connectionError = ''">×</button>
+    </div>
+  }
+
   <!-- Users Grid -->
   <div class="users-container">
     <ng-container *ngIf="users$ | async as users; else loadingState">
@@ -37,7 +45,7 @@
 
           <div class="card-actions">
             <button class="action-btn chat-btn"
-                    (click)="startChat(user.peerId)"
+                    (click)="startChat(user.peerId, user.username)"
                     title="Start chat">
               <span class="btn-icon">💬</span>
               <span class="btn-text">Chat</span>

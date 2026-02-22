@@ -1,38 +1,43 @@
-/* Global Design System Variables */
+/* Global Design System – Professional palette */
 :root {
-  /* Colors */
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-primary-light: #8b5cf6;
-  --color-secondary: #ec4899;
-  --color-accent: #06b6d4;
+  /* Primary – slate + blue */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #3b82f6;
+  --color-secondary: #475569;
+  --color-accent: #0ea5e9;
 
-  /* Status Colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  /* Status */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #0284c7;
 
-  /* Neutral Colors */
+  /* Neutrals (slate) */
   --color-white: #ffffff;
-  --color-black: #000000;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  --color-black: #0f172a;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
 
-  /* Background Gradients - Unified Instagram-style */
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  --gradient-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --gradient-accent: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  --gradient-call: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Page & surfaces */
+  --page-bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface-border: #e2e8f0;
+
+  /* Gradients – subtle, professional */
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --gradient-light: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-dark: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --gradient-accent: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  --gradient-call: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -99,7 +104,7 @@ body {
   margin: 0;
   padding: 0;
   color: var(--color-gray-900);
-  background: var(--gradient-light);
+  background: var(--page-bg);
   min-height: 100vh;
 }
 
@@ -111,10 +116,10 @@ body {
 }
 
 .card {
-  background: var(--color-white);
+  background: var(--surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--surface-border);
   transition: var(--transition-normal);
 }
 
@@ -145,13 +150,14 @@ body {
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   color: var(--color-white);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-lg);
+  background: var(--color-primary-dark);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
   transform: translateY(-1px);
 }
 
@@ -198,7 +204,7 @@ body {
 
 .input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .input::placeholder {

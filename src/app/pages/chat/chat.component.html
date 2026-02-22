@@ -2,18 +2,27 @@
   <!-- Chat Header -->
   <div class="chat-header">
     <div class="header-content">
+      <button type="button" class="back-btn" (click)="backToUsers()" title="Back to users">
+        ←
+      </button>
       <div class="avatar">
-        <span>💬</span>
+        <span>{{ chatPeerName.charAt(0).toUpperCase() }}</span>
       </div>
       <div class="header-info">
-        <h2 class="chat-title">Chat Room</h2>
-        <p class="chat-subtitle">Connected and chatting</p>
+        <h2 class="chat-title">{{ chatPeerName }}</h2>
+        <p class="chat-subtitle">
+          @if (isConnected) {
+            <span class="status-text connected">Connected</span>
+          } @else {
+            <span class="status-text connecting">Connecting…</span>
+          }
+        </p>
       </div>
     </div>
     <div class="header-actions">
       <div class="status-indicator">
-        <div class="status-dot"></div>
-        <span class="status-text">Online</span>
+        <div class="status-dot" [class.connected]="isConnected"></div>
+        <span class="status-text">{{ isConnected ? 'Online' : 'Connecting' }}</span>
       </div>
     </div>
   </div>

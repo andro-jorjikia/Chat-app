@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, OnDestroy, ViewChild, ElementRef,
 import { PeerService } from '../../services/peer.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -14,7 +15,9 @@ import { Subscription } from 'rxjs';
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   messages: any[] = [];
-  text = "";
+  text = '';
+  chatPeerName = '';
+  isConnected = false;
   private subscription?: Subscription;
 
   private shouldScrollToBottom = false;
@@ -23,19 +26,24 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   constructor(
     private peer: PeerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
+    const state = history.state;
+    this.chatPeerName = state?.['username'] ?? 'Chat';
+
+    this.isConnected = !!this.peer.connection?.open;
+
     this.subscription = this.peer.onMessage$.subscribe(msg => {
       if (!msg) return;
-
+      this.isConnected = true;
       this.messages = [...this.messages, {
-        from: "remote",
+        from: 'remote',
         text: msg.message,
         time: msg.time
       }];
-
       this.shouldScrollToBottom = true;
       this.cdr.detectChanges();
     });
@@ -49,9 +57,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+    this.subscription?.unsubscribe();
+  }
+
+  backToUsers(): void {
+    this.router.navigate(['/users']);
   }
 
   trackByMessage(index: number, message: any): any {

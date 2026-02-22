@@ -31,18 +31,16 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to call declined
     this.callDeclinedSub = this.peer.callDeclined$.subscribe(declined => {
       if (declined) {
         this.callDeclined = true;
         setTimeout(() => {
           this.callDeclined = false;
-          this.peer.callDeclined$.next(false);
+          this.peer.resetCallDeclinedState();
           this.router.navigate(["/users"]);
         }, 1800);
       }
     });
-    // Subscribe to call state
     this.subscriptions.add(
       this.peer.inCall$.subscribe(inCall => {
         this.isConnected = inCall;
@@ -55,11 +53,9 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
       })
     );
 
-    // Subscribe to remote stream
     this.subscriptions.add(
       this.peer.remoteStream$.subscribe(stream => {
         if (stream) {
-          // Use setTimeout to ensure ViewChild is ready
           setTimeout(() => {
             if (this.remoteAudio?.nativeElement) {
               const audio = this.remoteAudio.nativeElement;
@@ -70,7 +66,6 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }, 100);
         } else {
-          // Clear stream when disconnected
           if (this.remoteAudio?.nativeElement) {
             this.remoteAudio.nativeElement.srcObject = null;
           }
@@ -78,19 +73,16 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
       })
     );
 
-    // Subscribe to errors
     this.subscriptions.add(
       this.peer.error$.subscribe(error => {
         if (error) {
           console.error('PeerService error:', error);
-          // You can add toast notification here if needed
         }
       })
     );
   }
 
   ngAfterViewInit() {
-    // Ensure remote audio element is set up
     if (this.remoteAudio?.nativeElement) {
       const audio = this.remoteAudio.nativeElement;
       audio.onloadedmetadata = () => {
@@ -123,7 +115,6 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       .catch(error => {
         console.error('Failed to upgrade to video:', error);
-        // You can show error message to user here
       });
   }
 
@@ -133,7 +124,7 @@ export class AudioCallComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private startCallTimer(): void {
-    this.stopCallTimer(); // Clear any existing timer
+    this.stopCallTimer(); 
     this.timerInterval = window.setInterval(() => {
       if (this.callStartTime) {
         const now = new Date();

@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #667eea;
+  background: var(--color-gray-800);
 }
 
 .placeholder-avatar {
@@ -82,9 +82,9 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   animation: pulse 2s infinite;
-  
+
   &.connected {
-    background: #4ade80;
+    background: var(--color-success);
     animation: none;
   }
 }
@@ -208,14 +208,14 @@
 .end-btn {
   width: 64px;
   height: 64px;
-  background: #ef4444;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-  
+  background: var(--color-error);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+
   &:hover {
-    background: #dc2626;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    background: #b91c1c;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
   }
-  
+
   svg {
     width: 28px;
     height: 28px;

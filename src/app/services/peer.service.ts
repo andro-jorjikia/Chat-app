@@ -493,7 +493,13 @@ export class PeerService {
     return !isEnabled;
   }
 
+  /** Call this after showing "call declined" or when starting a new call. */
+  resetCallDeclinedState(): void {
+    this.zone.run(() => this.callDeclined$.next(false));
+  }
+
   endCall(): void {
+    this.resetCallDeclinedState();
     if (this._currentCall) {
       this._currentCall.close();
     }
@@ -501,7 +507,6 @@ export class PeerService {
   }
 
   private cleanup(): void {
-    this.callDeclined$.next(false);
     // Stop all local media tracks
     const localStream = this.localStream$.value;
     if (localStream) {

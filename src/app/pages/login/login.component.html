@@ -6,12 +6,18 @@
     <input
       type="text"
       class="input"
+      [(ngModel)]="username"
       placeholder="Enter username"
-      (input)="username = $any($event.target).value"
-    >
+      (keyup.enter)="login()"
+      [disabled]="loading"
+    />
 
-    <button class="btn" (click)="login()">
-      Login
+    @if (errorMessage) {
+      <p class="error-message">{{ errorMessage }}</p>
+    }
+
+    <button class="btn" (click)="login()" [disabled]="!username.trim() || loading">
+      {{ loading ? 'Connecting...' : 'Login' }}
     </button>
   </div>
 </div>

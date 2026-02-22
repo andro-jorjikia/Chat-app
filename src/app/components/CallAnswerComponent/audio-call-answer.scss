@@ -1,4 +1,4 @@
-/* full-screen overlay centered */
+/* Incoming call overlay */
 .call-answer-overlay {
   position: fixed;
   inset: 0;
@@ -6,7 +6,8 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  background: rgba(0,0,0,0.35);
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
 }
 
 .call-answer-center {
@@ -16,63 +17,89 @@
 }
 
 .call-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-  padding: 24px 28px;
-  width: 420px;
+  background: var(--surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--surface-border);
+  padding: 28px 32px;
+  width: 400px;
+  max-width: 90vw;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   align-items: center;
 }
 
 .avatar-circle {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: linear-gradient(180deg,#dfe9ff,#97a6ff);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
 }
 
 .avatar-inner {
-  width: 58px;
-  height: 58px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .call-info {
-  font-size: 18px;
-  color: #222;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
   text-align: center;
 }
 
 .caller-meta {
-  font-size: 13px;
-  color: #666;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
   margin-top: 4px;
 }
 
 .call-actions {
   display: flex;
-  gap: 16px;
+  gap: var(--space-4);
   justify-content: center;
   width: 100%;
 }
 
 .btn {
   border: none;
-  padding: 12px 22px;
-  border-radius: 28px;
+  padding: 12px 24px;
+  border-radius: var(--radius-xl);
   cursor: pointer;
   font-weight: 600;
+  font-size: var(--font-size-sm);
+  transition: var(--transition-fast);
 }
 
-.btn.accept { background: #4caf50; color: white; }
-.btn.reject { background: #f44336; color: white; }
+.btn.accept {
+  background: var(--color-success);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
 
-audio { display: none; }
+.btn.accept:hover {
+  background: #047857;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn.reject {
+  background: var(--color-error);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.btn.reject:hover {
+  background: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+audio {
+  display: none;
+}

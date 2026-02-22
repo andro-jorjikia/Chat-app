@@ -4,7 +4,7 @@ import { PeerService } from '../../services/peer.service';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-users',
@@ -16,16 +16,22 @@ import { filter } from 'rxjs/operators';
 export class UsersComponent implements OnInit, OnDestroy {
 
   users$!: Observable<any[]>;
+  connectionError = '';
   private callSub?: Subscription;
 
   constructor(
-    private signaling: SignalingService,
-    private peer: PeerService,
+    public signaling: SignalingService,
+    public peer: PeerService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.users$ = this.signaling.users$;
+    this.users$ = combineLatest([
+      this.signaling.users$,
+      this.peer.peerId$
+    ]).pipe(
+      map(([users, myPeerId]) => (users || []).filter((u: any) => u.peerId !== myPeerId))
+    );
 
     // თუ ზარი დაიწყება (incoming/outgoing), ავტომატურად გადავა შესაბამის გვერდზე
     // Combine inCall$ and callKind$ to ensure both are available when navigating
@@ -50,16 +56,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.callSub?.unsubscribe();
   }
 
-  startChat(peerId: string) {
-    console.log("CHAT →", peerId);
-
+  startChat(peerId: string, username?: string) {
+    this.connectionError = '';
     this.peer.connectToPeer(peerId)
       .then(() => {
-        console.log("Connected — navigating to chat");
-        this.router.navigate(['/chat']);
+        this.router.navigate(['/chat'], { state: { peerId, username: username || 'Unknown' } });
       })
       .catch(err => {
-        console.error("Connection failed:", err);
+        this.connectionError = err?.message || 'Connection failed. Try again.';
       });
   }
 
